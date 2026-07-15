@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshStart 3.0 - 新鮮人求職與104/1111/小雞上工聯名智庫</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        oat: {
+                            50: '#FAF8F5',
+                            100: '#F5F0EA',
+                            200: '#EAE1D4',
+                            300: '#DBD0C0',
+                        },
+                        sand: {
+                            50: '#FDFBF7',
+                            100: '#F7F3EB',
+                            200: '#EFE8DA',
+                            500: '#C3A68F',
+                            600: '#B2927A',
+                            700: '#9B7C65',
+                        },
+                        sage: {
+                            50: '#F4F6F6',
+                            100: '#E8ECEC',
+                            500: '#8C9A9E',
+                            600: '#768589',
+                            700: '#5F6D71',
+                        },
+                        charcoal: '#333333',
+                    },
+                    fontFamily: {
+                        sans: ['"PingFang TC"', '"Heiti TC"', '"Microsoft JhengHei"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FDFBF7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #EAE1D4;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C3A68F;
+        }
+        /* Page transition visual load bar */
+        #top-loading-bar {
+            transition: width 0.3s ease-out;
+        }
+        /* Custom transitions */
+        .page-view {
+            transition: opacity 0.25s ease-in-out;
+        }
+    </style>
+    <!-- Firebase Module Loaders (Required for dynamic real-time multiplayer chatting if enabled) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Expose to global window scope safely
+        window.firebaseModules = {
+            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
+            getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, addDoc, getDocs
+        };
+    </script>
+</head>
+<body class="bg-[#FDFBF7] text-charcoal font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Progress Loader -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-transparent z-50">
+        <div id="top-loading-bar" class="h-full bg-sand-500 w-0"></div>
+    </div>
+
+    <!-- Universal Custom Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-sm w-full pointer-events-none"></div>
+
+    <header class="bg-white/80 backdrop-blur-md border-b border-oat-100 sticky top-0 z-40 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-9 h-9 bg-sand-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm shadow-sand-500/20">
+                        F
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-base font-bold tracking-tight text-charcoal">FreshStart</span>
+                            <span class="bg-sand-100 text-sand-700 text-[9px] font-bold px-1.5 py-0.2 rounded-full">V3.0 聯名智庫版</span>
+                        </div>
+                        <span class="text-[10px] block text-gray-400 font-medium -mt-1">新鮮人求職輔助平台</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="navigateTo('home')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-sand-700 bg-sand-50" id="nav-home">首頁</button>
+                    <button onclick="navigateTo('quiz')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-quiz">適配測驗</button>
+                    <button onclick="navigateTo('jobs')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-jobs">尋找職缺</button>
+                    <button onclick="navigateTo('resume')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-resume">履歷生成</button>
+                    <button onclick="navigateTo('advice')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-advice">前輩指路</button>
+                    <button onclick="navigateTo('chat')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-chat">前輩聊天室</button>
+                    <button onclick="navigateTo('tips')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50" id="nav-tips">求職須知</button>
+                </nav>
+
+                <!-- Right Side Interactive Button -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <button onclick="navigateTo('tracker')" class="relative bg-charcoal hover:bg-charcoal/90 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm flex items-center space-x-1.5" id="nav-tracker">
+                        <i class="fa-solid fa-rectangle-list"></i>
+                        <span>求職進度追蹤</span>
+                        <span id="tracker-count" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-charcoal focus:outline-none p-1.5 rounded-lg hover:bg-oat-50 transition-colors">
+                        <i id="mobile-menu-icon" class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-oat-100 py-3 px-4 space-y-1">
+            <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-charcoal bg-sand-50">首頁</button>
+            <button onclick="navigateTo('quiz'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">適配測驗</button>
+            <button onclick="navigateTo('jobs'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">尋找職缺</button>
+            <button onclick="navigateTo('resume'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">履歷生成</button>
+            <button onclick="navigateTo('advice'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">前輩指路</button>
+            <button onclick="navigateTo('chat'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">前輩聊天室</button>
+            <button onclick="navigateTo('tips'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-charcoal hover:bg-oat-50">求職須知</button>
+            <hr class="border-oat-100 my-2">
+            <button onclick="navigateTo('tracker'); toggleMobileMenu()" class="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold text-sand-700 bg-sand-50 flex items-center justify-between">
+                <span><i class="fa-solid fa-rectangle-list mr-2"></i>求職進度追蹤</span>
+                <span id="tracker-count-mob" class="bg-sand-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-grow">
+
+        <!-- 1. HOME VIEW -->
+        <section id="view-home" class="page-view max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Hero Header -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6">
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sand-100 text-sand-700 tracking-wider">
+                        💼 104 / 1111 / 小雞上工 AI 智慧聯名
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl font-black text-charcoal tracking-tight leading-tight">
+                        即時爬蟲職缺 x 前端諮詢，<br>
+                        踏出社會求職的<span class="text-sand-500 underline decoration-wavy decoration-oat-300 underline-offset-8">全新高度</span>
+                    </h1>
+                    <p class="text-gray-500 text-base max-w-lg leading-relaxed">
+                        整合各大求職平台即時爬取技術、客製化履歷生成、AI 職場前輩面對面聊天與諮詢，無痛破冰、告別無聲卡黑洞。
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button onclick="navigateTo('jobs')" class="bg-sand-500 hover:bg-sand-600 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-sand-500/10 text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>體驗 AI 即時職缺爬蟲</span>
+                        </button>
+                        <button onclick="navigateTo('chat')" class="bg-white border border-oat-200 hover:bg-oat-50 text-charcoal font-semibold px-6 py-3 rounded-xl transition-all text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-regular fa-comments"></i>
+                            <span>進入前輩交流聊天室</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative flex justify-center">
+                    <div class="w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-tr from-sand-100 to-oat-50 rounded-[40px] rotate-6 absolute -z-10 shadow-inner"></div>
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-oat-200 shadow-xl max-w-sm space-y-6 transform hover:-translate-y-2 transition-transform duration-300">
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+                                <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                                <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                            </div>
+                            <span class="text-[10px] font-bold text-gray-400 tracking-wider">INTEGRATED HUB</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-sand-100 p-2 rounded-lg text-sand-600 text-sm"><i class="fa-solid fa-spider"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">三網即時雲端爬蟲</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">跨平台檢索 104、1111、小雞上工真實職缺</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-sage-100 p-2 rounded-lg text-sage-600 text-sm"><i class="fa-solid fa-user-tie"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">AI 前輩診所與即時聊天</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">業界導師一對一諮詢，解鎖求職疑惑</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-orange-50 p-2 rounded-lg text-orange-500 text-sm"><i class="fa-solid fa-paper-plane"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">客製化催單詢問信</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">自動綁定履歷欄位，向 HR 主動追蹤進度</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. QUIZ VIEW -->
+        <section id="view-quiz" class="page-view max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-sand-600 bg-sand-100 px-3 py-1 rounded-full">探索方向</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">學科通用特質適配測驗 (MBTI 核心版)</h2>
+                <div class="h-1 w-12 bg-sand-500 mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">只需解答 5 題生活與學習情境題，釐清自身天賦特質定位。</p>
+            </div>
+
+            <div class="bg-white border border-oat-200 rounded-3xl p-6 sm:p-10 shadow-sm">
+                <!-- Progress Line Indicator -->
+                <div class="mb-6">
+                    <div class="flex justify-between text-xs text-gray-400 font-medium mb-2">
+                        <span id="quiz-progress-text">問題 1 / 5</span>
+                        <span id="quiz-progress-percent">0% 已完成</span>
+                    </div>
+                    <div class="h-2 bg-oat-100 rounded-full overflow-hidden">
+                        <div id="quiz-progress-bar" class="h-full bg-sand-500 w-1/5 rounded-full transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Area Content -->
+                <div id="quiz-active-zone" class="space-y-6">
+                    <h3 id="quiz-question-title" class="text-base sm:text-lg font-bold text-charcoal leading-snug">
+                        載入問題中...
+                    </h3>
+                    <div id="quiz-options-container" class="space-y-3"></div>
+                </div>
+
+                <!-- Quiz Result Zone -->
+                <div id="quiz-result-zone" class="hidden text-center space-y-6 py-6">
+                    <div class="w-16 h-16 bg-sand-50 rounded-full flex items-center justify-center text-sand-500 text-3xl mx-auto mb-2 animate-bounce">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-charcoal">測驗結果出爐！</h3>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                        根據您的分析，您的核心優勢特質定位為：<br>
+                        <strong id="quiz-best-type" class="text-sand-700 text-xl font-black block tracking-wide underline decoration-wavy decoration-sand-300 underline-offset-8 mt-2">載入中...</strong>
+                    </p>
+                    
+                    <div class="bg-oat-50 rounded-2xl p-4 max-w-md mx-auto text-left border border-oat-100">
+                        <span class="text-[10px] font-bold text-gray-400 tracking-wider block mb-1">屬性分析與優勢報告</span>
+                        <p id="quiz-type-desc" class="text-xs text-gray-500 leading-relaxed">
+                            載入特質報告中...
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center space-x-3 pt-4">
+                        <button onclick="applyQuizFilterToJobs()" class="bg-sand-500 hover:bg-sand-600 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm">
+                            探索推薦職缺類型
+                        </button>
+                        <button onclick="resetQuiz()" class="bg-white border border-oat-200 hover:bg-oat-50 text-gray-600 text-xs font-semibold px-5 py-2.5 rounded-xl transition-all">
+                            重新測驗
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. JOBS VIEW -->
+        <section id="view-jobs" class="page-view max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-sage-600 bg-sage-100 px-3 py-1 rounded-full">動態雲端檢索</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">跨平台即時爬蟲與推薦看板</h2>
+                <div class="h-1 w-12 bg-sage-500 mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">除平台推薦外，更可一鍵切換「實時爬蟲系統」，運用 AI 自動連線爬取 104、1111 與小雞上工！</p>
+            </div>
+
+            <!-- Main Filter Controls & Search Switcher -->
+            <div class="bg-white border border-oat-200 rounded-3xl p-6 mb-8 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between border-b border-oat-100 pb-4 gap-4">
+                    <div class="flex space-x-2">
+                        <button onclick="setJobMode('featured')" id="btn-mode-featured" class="px-4 py-2 rounded-xl text-xs font-bold bg-sand-500 text-white transition-all">
+                            <i class="fa-solid fa-star mr-1"></i> 精選推薦職缺
+                        </button>
+                        <button onclick="setJobMode('crawler')" id="btn-mode-crawler" class="px-4 py-2 rounded-xl text-xs font-bold bg-oat-50 text-gray-500 border border-oat-200 hover:bg-oat-100 transition-all">
+                            <i class="fa-solid fa-spider mr-1 text-orange-500 animate-pulse"></i> 104/1111/小雞上工 即時爬蟲
+                        </button>
+                    </div>
+                    <div id="crawler-live-status" class="hidden text-xs text-sand-600 font-semibold items-center space-x-1.5 bg-sand-50 px-3 py-1.5 rounded-full border border-sand-100">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-sand-500"></span>
+                        </span>
+                        <span id="crawler-status-msg">已連線至三大雲端爬蟲通道</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <!-- Search bar -->
+                    <div class="relative w-full md:w-80">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="job-search-input" class="w-full pl-9 pr-3 py-2 border border-oat-200 rounded-xl text-xs focus:outline-none focus:border-sand-500" placeholder="搜尋關鍵字（職稱、公司、技能）...">
+                    </div>
+
+                    <!-- Actions or Selectors -->
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <div id="job-selectors" class="flex space-x-2">
+                            <select id="job-region-select" onchange="filterJobs()" class="bg-[#FDFBF7] border border-oat-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-sand-500 cursor-pointer">
+                                <option value="all">不限地區 (台北/台中/遠端)</option>
+                                <option value="台北">台北市</option>
+                                <option value="台中">台中市</option>
+                                <option value="遠端">完全遠端</option>
+                            </select>
+
+                            <select id="job-type-select" onchange="filterJobs()" class="bg-[#FDFBF7] border border-oat-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-sand-500 cursor-pointer">
+                                <option value="all">不限職能 (Design/Tech/Marketing)</option>
+                                <option value="design">設計/規劃類 (Design)</option>
+                                <option value="tech">技術/研發類 (Tech)</option>
+                                <option value="marketing">行銷/推廣類 (Marketing)</option>
+                            </select>
+                        </div>
+
+                        <!-- Active Crawler Search Trigger -->
+                        <button onclick="triggerLiveCrawl()" id="btn-crawl-search" class="hidden bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>即時爬取職缺</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loader Indicator for Crawling -->
+            <div id="crawler-spinner-container" class="hidden text-center py-16 bg-white border border-oat-200 rounded-3xl space-y-4">
+                <div class="w-12 h-12 border-4 border-sand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div>
+                    <h4 class="font-bold text-charcoal text-sm" id="crawler-loader-title">正在啟動雲端智慧爬蟲...</h4>
+                    <p class="text-xs text-gray-400 mt-1" id="crawler-loader-desc">正透過 AI 尋找 104、1111 與小雞上工真實新鮮人職位...</p>
+                </div>
+            </div>
+
+            <!-- Active Filtering Info (Hidden unless filter applied) -->
+            <div id="filter-active-pill" class="hidden mb-6 flex items-center justify-between bg-sand-50 border border-sand-100 rounded-xl px-4 py-2 text-xs">
+                <span class="text-sand-700" id="filter-active-pill-text">正在顯示測驗推薦職缺...</span>
+                <button onclick="clearFilters()" class="text-sand-600 hover:text-sand-800 font-bold underline">重置所有條件</button>
+            </div>
+
+            <!-- Jobs List Container -->
+            <div id="jobs-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+            <!-- Empty State -->
+            <div id="jobs-empty-state" class="hidden text-center py-16 bg-white border border-dashed border-oat-200 rounded-3xl">
+                <i class="fa-regular fa-folder-open text-gray-300 text-4xl mb-3"></i>
+                <h4 class="font-bold text-charcoal text-sm">目前無職缺資料</h4>
+                <p class="text-xs text-gray-400 mt-1" id="jobs-empty-state-desc">請調整篩選條件，或在爬蟲模式中輸入關鍵字點選「即時爬取職缺」！</p>
+            </div>
+        </section>
+
+        <!-- JOB DETAIL MODAL (Pop-up inside HTML) -->
+        <div id="job-detail-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-oat-200 flex flex-col max-h-[90vh]">
+                <!-- Header -->
+                <div class="px-6 py-5 bg-sand-50/50 border-b border-oat-100 flex justify-between items-start">
+                    <div>
+                        <span id="modal-job-tag" class="text-[10px] font-bold text-sand-700 bg-sand-100 px-2 py-0.5 rounded">科技類</span>
+                        <h3 id="modal-job-title" class="text-base sm:text-lg font-black text-charcoal mt-2">前端實習工程師</h3>
+                        <p id="modal-job-comp" class="text-xs text-gray-500 mt-0.5">極簡科技股份有限公司</p>
+                    </div>
+                    <button onclick="closeJobDetail()" class="text-gray-400 hover:text-charcoal focus:outline-none p-1 rounded-lg">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <!-- Body (Scrollable) -->
+                <div class="px-6 py-5 overflow-y-auto space-y-4 flex-grow text-xs text-gray-600 leading-relaxed">
+                    <div id="modal-job-source-tag" class="hidden bg-orange-50 border border-orange-100 p-3 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-orange-700 block"><i class="fa-solid fa-spider mr-1"></i> 即時爬蟲實時職缺</span>
+                            <span id="modal-job-crawler-info" class="text-xs text-orange-800 font-semibold">此職缺來自外部平台，將同步加入追蹤。</span>
+                        </div>
+                        <i class="fa-solid fa-link text-orange-400 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-charcoal mb-1">📍 工作資訊</h4>
+                        <p id="modal-job-info">薪資：時薪 180-220 元 | 地區：台北市信義區</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-charcoal mb-1">🎯 職缺描述</h4>
+                        <p id="modal-job-desc">這是一個非常重視新進人員培訓的團隊，您將協同前端資深工程師完成官方專案的網頁切版與模組優化。</p>
+                    </div>
+                    <div id="modal-requirements-block">
+                        <h4 class="font-bold text-charcoal mb-1">🛠️ 條件要求</h4>
+                        <ul id="modal-job-reqs" class="list-disc pl-4 space-y-1"></ul>
+                    </div>
+                </div>
+                <!-- Footer buttons -->
+                <div class="px-6 py-4 bg-oat-50 border-t border-oat-100 flex items-center justify-between">
+                    <span class="text-[10px] text-gray-400">點擊投遞後將模擬投遞流程</span>
+                    <div class="flex space-x-2">
+                        <button onclick="closeJobDetail()" class="bg-white border border-oat-200 text-gray-500 hover:bg-white text-xs px-4 py-2 rounded-xl transition-all">關閉</button>
+                        <button id="modal-apply-btn" onclick="applyJobFromModal()" class="bg-sand-500 hover:bg-sand-600 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all shadow-sm">一鍵投遞履歷</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. RESUME VIEW -->
+        <section id="view-resume" class="page-view max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-sand-600 bg-sand-100 px-3 py-1 rounded-full">履歷神器</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">新鮮人極簡履歷生成器 2.1</h2>
+                <div class="h-1 w-12 bg-sand-500 mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">自訂多組學歷、經歷，右側即時渲染。下載完全自訂 HTML 檔案或直接匯出為 PDF。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Left Column -->
+                <div class="lg:col-span-5 bg-white border border-oat-200 rounded-3xl p-5 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-charcoal">編輯控制面板</span>
+                        <div class="flex space-x-2">
+                            <button onclick="importResumeMockData()" class="text-[10px] text-sand-600 hover:text-sand-700 bg-sand-50 hover:bg-sand-100 px-2 py-1 rounded font-bold transition-all">
+                                <i class="fa-solid fa-file-import mr-1"></i>帶入新鮮人範例
+                            </button>
+                            <button onclick="clearResumeInputs()" class="text-[10px] text-gray-400 hover:text-red-500 px-2 py-1 rounded hover:bg-red-50 transition-all font-bold">
+                                清空
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Style Theme Selector -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">選擇風格配色</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="v2-theme-btn active flex flex-col items-center p-2.5 rounded-xl border-2 border-sand-500 text-left text-xs bg-[#FDFBF7]" data-theme="warm-earth">
+                                <span class="font-bold text-charcoal mb-1 text-[11px]">溫暖大地</span>
+                                <div class="flex space-x-1">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#C3A68F]"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#FDFBF7] border border-gray-200"></div>
+                                </div>
+                            </button>
+                            <button class="v2-theme-btn flex flex-col items-center p-2.5 rounded-xl border border-oat-200 text-left text-xs bg-white hover:bg-oat-50" data-theme="clean-bw">
+                                <span class="font-bold text-charcoal mb-1 text-[11px]">簡約黑白</span>
+                                <div class="flex space-x-1">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#111111]"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border border-gray-200"></div>
+                                </div>
+                            </button>
+                            <button class="v2-theme-btn flex flex-col items-center p-2.5 rounded-xl border border-oat-200 text-left text-xs bg-white hover:bg-oat-50" data-theme="cool-gray">
+                                <span class="font-bold text-charcoal mb-1 text-[11px]">專業冷灰</span>
+                                <div class="flex space-x-1">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#5E6B6F]"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#F1F3F4] border border-gray-200"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Scrollable Inputs -->
+                    <div class="space-y-4 max-h-[450px] overflow-y-auto pr-2">
+                        <div class="border-b border-oat-200 pb-1">
+                            <span class="text-xs font-bold text-sand-600">一、個人基本資料</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">姓名</label>
+                                <input type="text" id="v2-resume-name" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="林小新">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">應徵職缺方向</label>
+                                <input type="text" id="v2-resume-role" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="UI/UX 設計師">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">電子郵件</label>
+                                <input type="email" id="v2-resume-email" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="freshman.hire@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 mb-1">聯絡電話</label>
+                                <input type="text" id="v2-resume-phone" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="0912-345-678">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">個人網站 / 作品集連結</label>
+                            <input type="text" id="v2-resume-web" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="myportfolio.design">
+                        </div>
+
+                        <div class="border-b border-oat-200 pb-1 pt-2">
+                            <span class="text-xs font-bold text-sand-600">二、職涯自傳與摘要</span>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">個人簡介 / 自傳</label>
+                            <textarea id="v2-resume-bio" rows="3" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500 resize-none leading-relaxed">身為應屆畢業生，我擁有豐富的介面設計與使用者經驗分析經驗。擅長站在使用者角度切入，化繁為簡。具備流暢的前端架構基礎知識，能流暢與技術團隊溝通。</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-500 mb-1">專業核心技能 (半形逗號「,」分隔)</label>
+                            <input type="text" id="v2-resume-skills" class="w-full px-3 py-2 border border-oat-200 rounded-lg text-xs focus:outline-none focus:border-sand-500" value="Figma, Wireframing, 資訊架構規劃, HTML & CSS">
+                        </div>
+
+                        <!-- Dynamic Edu & Exp Lists -->
+                        <div class="border-b border-oat-200 pb-1 pt-2 flex items-center justify-between">
+                            <span class="text-xs font-bold text-sand-600">三、學歷背景</span>
+                            <button type="button" onclick="addNewEduRow()" class="text-[11px] text-sand-600 hover:text-sand-700 bg-sand-100 hover:bg-sand-200 px-2.5 py-1 rounded font-bold transition-all flex items-center space-x-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>增加學歷</span>
+                            </button>
+                        </div>
+                        <div id="v2-resume-edu-list" class="space-y-4"></div>
+
+                        <div class="border-b border-oat-200 pb-1 pt-2 flex items-center justify-between">
+                            <span class="text-xs font-bold text-sand-600">四、工作、專案或社團經歷</span>
+                            <button type="button" onclick="addNewExpRow()" class="text-[11px] text-sand-600 hover:text-sand-700 bg-sand-100 hover:bg-sand-200 px-2.5 py-1 rounded font-bold transition-all flex items-center space-x-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>增加經歷</span>
+                            </button>
+                        </div>
+                        <div id="v2-resume-exp-list" class="space-y-4"></div>
+                    </div>
+
+                    <div class="pt-4 grid grid-cols-2 gap-3">
+                        <button id="download-v2-resume-btn" class="bg-sand-500 hover:bg-sand-600 text-white font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <span>自定義下載 HTML</span>
+                        </button>
+                        <button id="print-v2-resume-btn" class="bg-charcoal hover:bg-charcoal/90 text-white font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-print"></i>
+                            <span>直接列印 / PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="flex items-center justify-between px-3 text-xs text-gray-400">
+                        <span id="preview-v2-theme-indicator" class="font-semibold text-sand-600">風格：溫暖大地</span>
+                        <span><i class="fa-solid fa-eye mr-1"></i>即時預覽看板 (A4 縮影)</span>
+                    </div>
+
+                    <div class="bg-white border-2 border-oat-200 rounded-3xl p-6 sm:p-10 shadow-lg min-h-[750px] transition-all duration-300" id="v2-resume-preview" style="background-color: #FDFBF7; border-color: #C3A68F;">
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-start border-b pb-5" style="border-color: inherit;">
+                                <div class="space-y-1">
+                                    <h3 id="prev-v2-name" class="text-2xl font-black tracking-wide text-charcoal">林小新</h3>
+                                    <p id="prev-v2-role" class="text-xs font-bold uppercase tracking-wider text-sand-500" style="color: #C3A68F;">UI/UX 設計師</p>
+                                </div>
+                                <div class="text-right text-[11px] text-gray-400 space-y-0.5">
+                                    <p><i class="fa-regular fa-envelope mr-1"></i><span id="prev-v2-email">freshman.hire@example.com</span></p>
+                                    <p><i class="fa-solid fa-phone mr-1"></i><span id="prev-v2-phone">0912-345-678</span></p>
+                                    <p><i class="fa-solid fa-globe mr-1"></i><span id="prev-v2-web">myportfolio.design</span></p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <h5 class="prev-section-title font-bold border-b pb-1 mb-2 tracking-wide text-[11px] uppercase" style="border-color: inherit;">個人簡介</h5>
+                                    <p id="prev-v2-bio" class="text-gray-600 leading-relaxed text-xs"></p>
+                                </div>
+                                <div>
+                                    <h5 class="prev-section-title font-bold border-b pb-1 mb-2 tracking-wide text-[11px] uppercase" style="border-color: inherit;">專業核心技能</h5>
+                                    <div id="prev-v2-skills" class="flex flex-wrap gap-1.5"></div>
+                                </div>
+                                <div>
+                                    <h5 class="prev-section-title font-bold border-b pb-1 mb-2 tracking-wide text-[11px] uppercase" style="border-color: inherit;">學歷背景</h5>
+                                    <div id="prev-v2-edu-container" class="space-y-3"></div>
+                                </div>
+                                <div>
+                                    <h5 class="prev-section-title font-bold border-b pb-1 mb-2 tracking-wide text-[11px] uppercase" style="border-color: inherit;">工作與專案經歷</h5>
+                                    <div id="prev-v2-exp-container" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. WORKPLACE ADVICE (前輩指路 & AI 門診) -->
+        <section id="view-advice" class="page-view max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-sage-600 bg-sage-100 px-3 py-1 rounded-full">專業指路</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">職場前輩指路診所</h2>
+                <div class="h-1 w-12 bg-sage-500 mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">在這裡，您可以選擇不同背景的行業前輩，針對您的科系、優勢進行一對一 AI 深度問診！</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Portal: Select Mentor & Ask -->
+                <div class="lg:col-span-5 bg-white border border-oat-200 rounded-3xl p-6 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="font-bold text-charcoal text-sm flex items-center mb-4">
+                            <i class="fa-solid fa-user-doctor text-sand-500 mr-2"></i>
+                            <span>1. 選擇您的專屬職場前輩</span>
+                        </h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div onclick="selectMentor('alice')" id="mentor-alice" class="mentor-card active border-2 border-sand-500 bg-sand-50 p-4 rounded-2xl cursor-pointer transition-all flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-sand-200 rounded-full flex items-center justify-center text-sand-600 text-lg font-bold">艾</div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">艾莉絲 (Alice)</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">資深 UI/UX 設計總監 (5年外商背景)</p>
+                                    <span class="inline-block mt-1 bg-sand-100 text-sand-700 font-bold px-1.5 py-0.5 rounded text-[9px]">美感與體驗 / 設計領域</span>
+                                </div>
+                            </div>
+                            <div onclick="selectMentor('tony')" id="mentor-tony" class="mentor-card border border-oat-200 bg-white p-4 rounded-2xl cursor-pointer hover:bg-oat-50 transition-all flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-sage-200 rounded-full flex items-center justify-center text-sage-600 text-lg font-bold">葉</div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">葉大頭 (Tony)</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">知名大廠 Technical Lead (軟體架構專家)</p>
+                                    <span class="inline-block mt-1 bg-sage-100 text-sage-700 font-bold px-1.5 py-0.5 rounded text-[9px]">軟體開發 / 技術與邏輯</span>
+                                </div>
+                            </div>
+                            <div onclick="selectMentor('charlie')" id="mentor-charlie" class="mentor-card border border-oat-200 bg-white p-4 rounded-2xl cursor-pointer hover:bg-oat-50 transition-all flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 text-lg font-bold">查</div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">查理 (Charlie)</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">跨國品牌公關與市場行銷經理</p>
+                                    <span class="inline-block mt-1 bg-orange-50 text-orange-600 font-bold px-1.5 py-0.5 rounded text-[9px]">社群行銷 / 品牌公關 / 商務</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-oat-100 pt-4 space-y-3">
+                        <h3 class="font-bold text-charcoal text-sm flex items-center">
+                            <i class="fa-regular fa-comment-dots text-sand-500 mr-2"></i>
+                            <span>2. 填寫您的求職疑問</span>
+                        </h3>
+                        <textarea id="mentor-query" rows="4" class="w-full text-xs p-3 border border-oat-200 rounded-xl focus:outline-none focus:border-sand-500 resize-none leading-relaxed" placeholder="例如：我是文科生想轉行做行銷，我的第一份履歷應該如何包裝才不會被直接刷掉？"></textarea>
+                        <button onclick="askMentorAdvice()" class="w-full bg-sand-500 hover:bg-sand-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-sm transition-all flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>送出諮詢 (免費一對一)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Portal: Mentor Response Desk -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="bg-white border border-oat-200 rounded-3xl p-6 shadow-sm min-h-[400px] flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-oat-100 pb-3 mb-4">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">診斷結果與引路意見</span>
+                                <span id="mentor-status-tag" class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-100 px-2 py-0.5 rounded">診所候診中</span>
+                            </div>
+
+                            <div id="mentor-response-content" class="text-xs text-gray-500 leading-relaxed space-y-4">
+                                <div class="text-center py-20 text-gray-300">
+                                    <i class="fa-solid fa-stethoscope text-4xl mb-3 block"></i>
+                                    <span>在左側點選一位職場前輩，並輸入您當前的迷茫，點擊送出即可獲得專屬引路指南！</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="mentor-disclaimer" class="border-t border-oat-100 pt-3 mt-6 text-[10px] text-gray-400 flex items-center justify-between">
+                            <span>💡 前輩意見將融入 104 人類智庫與 Holland 特質推薦。</span>
+                            <span>FreshStart Mentor Net</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5B. CHATROOM VIEW -->
+        <section id="view-chat" class="page-view max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-charcoal/60 bg-charcoal/5 px-3 py-1 rounded-full">在線共感</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">新鮮人 x 職場前輩交流聊天室</h2>
+                <div class="h-1 w-12 bg-charcoal mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">這裡是一個全實時、溫馨的新鮮人聊天港灣。除了跨校同學，AI 職場前輩也隨時在線為您提供解答！</p>
+            </div>
+
+            <!-- Chat Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Column: Active Members and Room Guideline -->
+                <div class="lg:col-span-4 bg-white border border-oat-200 rounded-3xl p-5 shadow-sm space-y-4">
+                    <h3 class="font-bold text-xs text-gray-400 uppercase tracking-wider border-b border-oat-100 pb-2">聊天室在線專家成員</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-sand-200 text-sand-700 font-bold flex items-center justify-center text-xs">艾</div>
+                            <div>
+                                <span class="text-xs font-bold block text-charcoal">艾莉絲 (UI/UX 專家)</span>
+                                <span class="text-[9px] text-green-600 flex items-center font-bold"><span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>在線解惑中</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-sage-200 text-sage-700 font-bold flex items-center justify-center text-xs">葉</div>
+                            <div>
+                                <span class="text-xs font-bold block text-charcoal">葉大頭 (技術專家)</span>
+                                <span class="text-[9px] text-green-600 flex items-center font-bold"><span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>在線解惑中</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold flex items-center justify-center text-xs">查</div>
+                            <div>
+                                <span class="text-xs font-bold block text-charcoal">查理 (行銷專家)</span>
+                                <span class="text-[9px] text-green-600 flex items-center font-bold"><span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>在線解惑中</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-oat-50 rounded-2xl p-4 border border-oat-100 text-xs text-gray-500 space-y-2">
+                        <strong class="font-bold text-charcoal block">📜 溫馨守則</strong>
+                        <p class="text-[11px] leading-relaxed">
+                            歡迎詢問任何關於專題、面試、實習、勞動權益的真實疑惑。請保持禮貌與良善，前輩們會不定期隨機解答！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Chat Interface -->
+                <div class="lg:col-span-8 bg-white border border-oat-200 rounded-3xl overflow-hidden shadow-sm flex flex-col h-[500px]">
+                    <!-- Chat Header -->
+                    <div class="px-5 py-3 border-b border-oat-100 bg-sand-50/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                            <span class="text-xs font-bold text-charcoal">FreshStart 全台新鮮人交流大廳</span>
+                        </div>
+                        <span id="chat-mode-indicator" class="text-[9px] font-bold bg-sand-100 text-sand-700 px-2 py-0.5 rounded">LocalStorage 快照</span>
+                    </div>
+
+                    <!-- Chat Messages list (Scrollable) -->
+                    <div id="chat-messages-container" class="flex-grow p-5 overflow-y-auto space-y-4 bg-[#FAF8F5]/30"></div>
+
+                    <!-- Chat Input field -->
+                    <div class="p-3 border-t border-oat-100 bg-white">
+                        <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex items-center space-x-2">
+                            <input type="text" id="chat-input" class="flex-grow text-xs px-4 py-2.5 border border-oat-200 rounded-xl focus:outline-none focus:border-sand-500" placeholder="打個招呼，或向在線的前輩發問吧..." required autocomplete="off">
+                            <button type="submit" class="bg-sand-500 hover:bg-sand-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. TRACKER VIEW -->
+        <section id="view-tracker" class="page-view max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-charcoal/60 bg-charcoal/5 px-3 py-1 rounded-full">我的進度</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">個人求職進度追蹤器 (Job Tracker)</h2>
+                <div class="h-1 w-12 bg-charcoal mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">新鮮人專用！當您在「尋找職缺」中點擊投遞後，職位會自動同步到此處。您可隨時更改當前關卡並撰寫備忘錄。</p>
+            </div>
+
+            <!-- Job Funnel Dashboard Panel -->
+            <div class="bg-white border border-oat-200 rounded-3xl p-6 shadow-sm mb-8">
+                <h3 class="font-bold text-sm text-charcoal mb-4 flex items-center">
+                    <i class="fa-solid fa-filter text-sand-500 mr-2"></i>
+                    <span>求職漏斗狀態分析</span>
+                </h3>
+                <div class="grid grid-cols-4 gap-4 text-center text-xs">
+                    <div class="bg-oat-50 p-4 rounded-2xl border border-oat-100">
+                        <span class="text-gray-400 block mb-1">已投遞</span>
+                        <div class="text-2xl font-black text-gray-700" id="funnel-applied">0</div>
+                    </div>
+                    <div class="bg-oat-50 p-4 rounded-2xl border border-oat-100">
+                        <span class="text-gray-400 block mb-1">面試中</span>
+                        <div class="text-2xl font-black text-blue-500" id="funnel-interviewing">0</div>
+                    </div>
+                    <div class="bg-oat-50 p-4 rounded-2xl border border-oat-100">
+                        <span class="text-gray-400 block mb-1">🎉 錄取</span>
+                        <div class="text-2xl font-black text-green-600" id="funnel-accepted">0</div>
+                    </div>
+                    <div class="bg-oat-50 p-4 rounded-2xl border border-oat-100">
+                        <span class="text-gray-400 block mb-1">未錄取</span>
+                        <div class="text-2xl font-black text-red-500" id="funnel-rejected">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracker Main Panel -->
+            <div class="bg-white border border-oat-200 rounded-3xl p-6 shadow-sm overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between pb-4 border-b border-oat-100 gap-4">
+                    <div>
+                        <h3 class="font-bold text-sm text-charcoal">當前進行中的投遞記錄</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">系統將資料加密保存在您的瀏覽器中，清除快取前不會遺失。</p>
+                    </div>
+                    <button onclick="clearAllTrackerData()" class="text-red-500 hover:text-red-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all">
+                        <i class="fa-solid fa-trash-can mr-1"></i>清空所有投遞歷史
+                    </button>
+                </div>
+
+                <!-- Active Tracker Cards -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-oat-100 text-xs text-left">
+                        <thead class="bg-oat-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider">職缺與公司</th>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider">投遞日期</th>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider">目前求職狀態</th>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider">破冰自救方案</th>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider">我的面試筆記</th>
+                                <th scope="col" class="px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wider text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tracker-table-body" class="bg-white divide-y divide-oat-50"></tbody>
+                    </table>
+                </div>
+
+                <!-- Empty state tracker -->
+                <div id="tracker-empty-state" class="hidden text-center py-16">
+                    <i class="fa-solid fa-list-check text-gray-300 text-4xl mb-3"></i>
+                    <h4 class="font-bold text-charcoal text-sm">目前尚無追蹤職缺</h4>
+                    <p class="text-xs text-gray-400 mt-1">請前往「尋找職缺」並點擊「一鍵投遞履歷」模擬投遞！</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUTOMATED INQUIRY MAIL MODAL -->
+        <div id="tracker-mail-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-oat-200 flex flex-col max-h-[90vh]">
+                <!-- Header -->
+                <div class="px-6 py-5 bg-sand-50/50 border-b border-oat-100 flex justify-between items-start">
+                    <div>
+                        <span class="text-[10px] font-bold text-sand-700 bg-sand-100 px-2 py-0.5 rounded">💌 新鮮人追蹤詢問信系統</span>
+                        <h3 class="text-base sm:text-lg font-black text-charcoal mt-2">破冰自救：客製化履歷詢問函</h3>
+                    </div>
+                    <button onclick="closeMailModal()" class="text-gray-400 hover:text-charcoal focus:outline-none p-1 rounded-lg">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <!-- Body (Scrollable) -->
+                <div class="px-6 py-5 overflow-y-auto space-y-4 flex-grow text-xs text-gray-600 leading-relaxed">
+                    <p class="text-gray-400">投遞已久未有下文？這封詢問信能展現高度主動與熱忱。系統已自動套用您在【履歷生成器】中的資料：</p>
+                    <div class="bg-white border border-oat-200 rounded-xl p-4 relative font-mono text-[11px] text-gray-700 leading-normal max-h-60 overflow-y-auto">
+                        <textarea id="mail-text-area" class="w-full h-48 bg-transparent border-0 focus:outline-none focus:ring-0 resize-none"></textarea>
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-oat-50 border-t border-oat-100 flex items-center justify-between">
+                    <span class="text-[10px] text-gray-400">一鍵複製後可直接寄信予HR主管</span>
+                    <div class="flex space-x-2">
+                        <button onclick="closeMailModal()" class="bg-white border border-oat-200 text-gray-500 hover:bg-white text-xs px-4 py-2 rounded-xl transition-all">關閉</button>
+                        <button onclick="copyMailContent()" class="bg-sand-500 hover:bg-sand-600 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all shadow-sm">複製詢問信內容</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. TIPS VIEW -->
+        <section id="view-tips" class="page-view max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 hidden">
+            <div class="text-center mb-10">
+                <span class="text-xs font-semibold tracking-wider text-sand-600 bg-sand-100 px-3 py-1 rounded-full">求職防身攻略</span>
+                <h2 class="text-3xl font-bold text-charcoal mt-3">新鮮人求職安全與須知</h2>
+                <div class="h-1 w-12 bg-sand-500 mx-auto mt-3 rounded-full"></div>
+                <p class="text-gray-500 mt-2 text-sm">提供全方位面試基礎心法、權益維護常識，幫助您安全從容上陣。</p>
+            </div>
+
+            <!-- Accordion Group -->
+            <div class="space-y-4 max-w-2xl mx-auto">
+                <div class="accordion-item bg-white border border-oat-200 rounded-xl overflow-hidden transition-all duration-300">
+                    <button class="accordion-header w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="font-medium text-sm text-charcoal flex items-center"><i class="fa-regular fa-comment-dots text-sage-500 mr-3"></i>面試基礎禮儀：提前準備並準時抵達</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-out">
+                        <div class="px-6 pb-5 text-xs text-gray-500 leading-relaxed border-t border-oat-100 pt-3">
+                            最理想的抵達時間為面試前 <strong class="text-charcoal font-semibold">15 分鐘</strong>。提前 15 分鐘到場能讓您有充裕時間調整呼吸、整理儀容、確認面試資料，並平復緊張情緒。太早到會給接待人員與面試主管帶來無形壓力，而遲到則是大忌。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item bg-white border border-oat-200 rounded-xl overflow-hidden transition-all duration-300">
+                    <button class="accordion-header w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="font-medium text-sm text-charcoal flex items-center"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-3"></i>重要防騙防陷阱：求職「三不、七防」</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-out">
+                        <div class="px-6 pb-5 text-xs text-gray-500 leading-relaxed border-t border-oat-100 pt-3">
+                            面試或入職前，請謹記**不繳交任何不合理規費**、**不隨意給出身分證件正本**、**不當場簽署未看清的合約**。警惕打著「免經驗、年薪百萬、工作彈性輕鬆」旗號的誘惑廣告。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item bg-white border border-oat-200 rounded-xl overflow-hidden transition-all duration-300">
+                    <button class="accordion-header w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="font-medium text-sm text-charcoal flex items-center"><i class="fa-solid fa-scale-balanced text-sage-500 mr-3"></i>基本勞安權益：勞保、健保與勞退撥繳義務</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content max-h-0 overflow-hidden transition-all duration-300 ease-out">
+                        <div class="px-6 pb-5 text-xs text-gray-500 leading-relaxed border-t border-oat-100 pt-3">
+                            只要公司僱用員工滿 5 人以上，依法就**必須幫員工加保勞工保險**。此外不論僱用人數，健保與「每月雇主提繳 6% 勞工退休金」是絕對強制、不能協議放棄的項目。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts & Core Logic -->
+    <script>
+        const appState = {
+            currentPage: 'home',
+            jobMode: 'featured', // 'featured' or 'crawler'
+            appliedJobs: JSON.parse(localStorage.getItem('freshstart_applied_jobs')) || [],
+            quizAnswers: { thinker: 0, creator: 0, organizer: 0, executor: 0 },
+            quizCurrentIndex: 0,
+            activeMentorKey: 'alice',
+            chatHistory: JSON.parse(localStorage.getItem('freshstart_chat_history_v3')) || [
+                { sender: '系統前輩', content: '歡迎來到 FreshStart 大廳聊天室！無論您對寫履歷、投遞面試還是對職場有任何疑難雜症，都可以在這裡發言哦。', timestamp: Date.now() - 3600000, role: 'mentor' },
+                { sender: '艾莉絲 (Alice)', content: '各位同學好！我是艾莉絲。大家如果對 UI/UX 或是設計領域有問題，隨時可以敲我！', timestamp: Date.now() - 1800000, role: 'mentor' }
+            ],
+            resumeEdu: [
+                {
+                    school: '國立創新科技大學',
+                    major: '數位媒體設計學系 學士學位',
+                    achieve: '專攻多媒體互動界面，大專院校介面大賽佳作',
+                    year: '2022.09 - 2026.06'
+                }
+            ],
+            resumeExp: [
+                {
+                    title: '新創數位科技 (前端兼職實習生)',
+                    year: '2025.07 - 2026.02',
+                    desc: '協同架構新版官方網頁 UI。運用 Figma 建構 Design System 組件，並維護 HTML5/CSS 專案網頁切版。'
+                }
+            ]
+        };
+
+        const presetJobs = [
+            {
+                id: 'job-1',
+                title: 'Junior UI/UX 助理介面設計師',
+                company: '創想數位媒體整合股份有限公司',
+                region: '台北',
+                type: 'design',
+                salary: '月薪 35,000 - 42,000 元',
+                desc: '針對無實務經驗的應屆畢業生。您將在資深設計師帶領下，繪製線框圖 (Wireframes) 與產品精緻原型 (Prototypes)，建立設計元件庫。',
+                reqs: ['精通 Figma 操作與基本 Auto-layout。', '具備同理心，樂於主動跟使用者溝通訪談。', '附個人大專專案作品集。']
+            },
+            {
+                id: 'job-2',
+                title: '前端開發助理實習生 (Front-End Junior)',
+                company: '極簡科技系統研發公司',
+                region: '遠端',
+                type: 'tech',
+                salary: '時薪 185 - 220 元',
+                desc: '支援團隊多端官網與 Landing Page 響應式切版與互動特效。提供完整的雙導師導航制度，幫您平穩落地。',
+                reqs: ['理解並能熟練撰寫原生 HTML, CSS 與基礎 JavaScript。', '知道何謂 RWD 響應式網頁排版。', '有 Git 分支基本操作概念。']
+            },
+            {
+                id: 'job-3',
+                title: '社群品牌經營與行銷企劃助理',
+                company: '微光自媒體孵化器',
+                region: '台中',
+                type: 'marketing',
+                salary: '月薪 32,000 - 36,000 元',
+                desc: '負責營運公司旗下潮流品牌之 IG、Threads、與 YouTube 短影音企劃。協助文案撰寫、腳本發想、及活動數據成效追蹤。',
+                reqs: ['重度社群軟體使用者，隨時跟上最新的網路爆紅迷因與話題。', '能運用 Canva 進行基本的視覺美編排版。', '熱情且富有溝通精神。']
+            }
+        ];
+
+        // ----------------------------------------------------
+        // Firebase Setup & Real-time Synchronization (RULE 1, 2, 3)
+        // ----------------------------------------------------
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'freshstart-v3';
+        let db = null;
+        let auth = null;
+        let isFirebaseActive = false;
+
+        async function initFirebaseChat() {
+            if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                console.log("Firebase config absent. Operating in LocalStorage mode.");
+                return;
+            }
+            try {
+                const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, getFirestore, collection, onSnapshot } = window.firebaseModules;
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // RULE 3: Auth before any query
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                isFirebaseActive = true;
+                document.getElementById('chat-mode-indicator').innerText = "雲端即時同步";
+                document.getElementById('chat-mode-indicator').className = "text-[9px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded animate-pulse";
+
+                // RULE 1 & 2: Read subcollection path safely & Sort in Memory
+                const chatCol = collection(db, 'artifacts', appId, 'public', 'data', 'chatroom');
+                onSnapshot(chatCol, (snapshot) => {
+                    const msgs = [];
+                    snapshot.forEach(doc => {
+                        msgs.push({ id: doc.id, ...doc.data() });
+                    });
+                    msgs.sort((a, b) => a.timestamp - b.timestamp);
+                    renderChatMessages(msgs);
+                }, (err) => {
+                    console.error("Firestore loading error:", err);
+                });
+
+            } catch (err) {
+                console.warn("Firebase Auth / Init failure, fall backing:", err);
+            }
+        }
+
+        // ----------------------------------------------------
+        // AI Crawler Integration (Gemini API with Google Search Grounding)
+        // ----------------------------------------------------
+        async function triggerLiveCrawl() {
+            const queryVal = document.getElementById('job-search-input').value.trim();
+            if (!queryVal) {
+                showToast("請先輸入想要搜尋與爬取的職缺關鍵字！", "error");
+                return;
+            }
+
+            const spinner = document.getElementById('crawler-spinner-container');
+            const grid = document.getElementById('jobs-cards-grid');
+            const empty = document.getElementById('jobs-empty-state');
+            const loaderTitle = document.getElementById('crawler-loader-title');
+            const loaderDesc = document.getElementById('crawler-loader-desc');
+
+            grid.innerHTML = '';
+            empty.classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            const steps = [
+                { title: "正在連線 104 人力銀行...", desc: "檢索新鮮人與無經驗可之職缺管道..." },
+                { title: "正在過濾 1111 人力銀行...", desc: "比對 2026 最新職位，排除過期資料..." },
+                { title: "正在檢索小雞上工兼職與實習...", desc: "篩選彈性工時與對應實習職位..." },
+                { title: "正在運用 AI 進行格式彙整與去重...", desc: "正在過濾不合適的幽靈缺..." }
+            ];
+
+            let stepIndex = 0;
+            const stepInterval = setInterval(() => {
+                if (stepIndex < steps.length) {
+                    loaderTitle.innerText = steps[stepIndex].title;
+                    loaderDesc.innerText = steps[stepIndex].desc;
+                    stepIndex++;
+                } else {
+                    clearInterval(stepInterval);
+                }
+            }, 800);
+
+            try {
+                const apiKey = ""; // Canvas handles key insertion in runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const prompt = `請幫我爬取台灣 2026 年最新、真實的「${queryVal}」適合社會新鮮人、無經驗或應屆畢業生的職缺資料。
+請至少包含 104人力銀行、1111人力銀行、小雞上工（Chickpt）這三者中的兩者以上的真實近期資料，並為我推薦 4 到 6 個職缺。
+請確保輸出完全符合指定的 JSON Schema 格式。`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    company: { type: "STRING" },
+                                    platform: { type: "STRING" }, // "104人力銀行" or "1111人力銀行" or "小雞上工"
+                                    region: { type: "STRING" },
+                                    salary: { type: "STRING" },
+                                    desc: { type: "STRING" },
+                                    url: { type: "STRING" }
+                                },
+                                required: ["title", "company", "platform", "region", "salary", "desc", "url"]
+                            }
+                        }
+                    },
+                    systemInstruction: {
+                        parts: [{ text: "你是一個專業的台灣人才市場即時爬蟲整合分析師。必須利用 Google Search 搜集最新的台灣新鮮人職務真實數據，並排除任何無效資訊。" }]
+                    }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                clearInterval(stepInterval);
+                const data = await res.json();
+                const jsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsedJobs = JSON.parse(jsonText);
+                    renderCrawledJobs(parsedJobs);
+                    showToast(`AI 已成功即時爬取 ${parsedJobs.length} 個最新職缺！`, "success");
+                } else {
+                    throw new Error("Empty Response");
+                }
+
+            } catch (err) {
+                console.error("Crawler Error:", err);
+                clearInterval(stepInterval);
+                spinner.classList.add('hidden');
+                empty.classList.remove('hidden');
+                document.getElementById('jobs-empty-state-desc').innerText = "爬取伺服器連線超時，請點擊重試，或輸入其他關鍵字。";
+                showToast("即時爬取遭遇線路超時，請再試一次！", "error");
+            }
+        }
+
+        function renderCrawledJobs(jobs) {
+            document.getElementById('crawler-spinner-container').classList.add('hidden');
+            const grid = document.getElementById('jobs-cards-grid');
+            grid.innerHTML = '';
+
+            if (!jobs || jobs.length === 0) {
+                document.getElementById('jobs-empty-state').classList.remove('hidden');
+                return;
+            }
+
+            jobs.forEach((job, index) => {
+                const id = `crawl-${index}`;
+                // Save crawled job globally so detail modal can read it
+                job.id = id;
+                job.type = 'tech'; // fallback
+                jobList.push(job); // push mock
+
+                const card = document.createElement('div');
+                card.className = "bg-white border-2 border-orange-100 rounded-2xl p-5 hover:border-orange-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold bg-orange-50 text-orange-600 px-2 py-0.5 rounded"><i class="fa-solid fa-spider mr-1"></i>${job.platform}</span>
+                            <span class="text-[10px] text-gray-400 font-medium"><i class="fa-solid fa-location-dot mr-1"></i>${job.region}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-charcoal leading-snug line-clamp-1">${job.title}</h4>
+                            <p class="text-[11px] text-gray-400 mt-0.5">${job.company}</p>
+                        </div>
+                        <p class="text-[11px] text-gray-500 line-clamp-2 leading-relaxed">${job.desc}</p>
+                    </div>
+                    <div class="pt-4 border-t border-oat-50 mt-4 flex items-center justify-between">
+                        <span class="text-[10px] text-orange-600 font-bold">${job.salary}</span>
+                        <button onclick="openJobDetail('${id}')" class="text-[10px] text-orange-600 hover:text-white hover:bg-orange-500 px-3 py-1.5 rounded-lg border border-orange-500/25 font-bold transition-all">
+                            查看爬蟲詳情
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ----------------------------------------------------
+        // AI Senior Advice Portal (前輩指路診所)
+        // ----------------------------------------------------
+        const mentors = {
+            alice: { name: "艾莉絲 (Alice)", role: "UI/UX 設計總監", prompt: "你是一位擁有5年外商經驗的資深UI/UX設計總監，名叫艾莉絲。你對應屆畢業生充滿同理心、親切且專業。請針對學生的提問，以大眾理解、暖心、帶有指導性的口吻回答。請回答時多以美感、體驗、同理使用者以及設計思維切入，並給予 3 點具體可行的建議。請用繁體中文回答。" },
+            tony: { name: "葉大頭 (Tony)", role: "Technical Lead", prompt: "你是一位知名科技大廠的後端 Technical Lead，名叫葉大頭。你思維縝密、說話直率幽默，看重邏輯除錯與技術實踐。請針對學生的提問，給予非常客觀、乾貨滿滿、重實作不重空談的建議，以技術架構、程式基礎與邏輯訓練角度回答，並提供 3 個實踐步驟。請用繁體中文回答。" },
+            charlie: { name: "查理 (Charlie)", role: "市場行銷經理", prompt: "你是一位跨國品牌的市場行銷經理，名叫查理。你熱情、幽默、充滿活力，對商業嗅覺極度敏銳，擅長社群擴散。請針對學生的求職迷茫，以市場包裝、定位、數據思維、亮點行銷的角度進行診斷，給予 3 個能立即包裝自己亮點的絕妙行銷方法。請用繁體中文回答。" }
+        };
+
+        function selectMentor(key) {
+            appState.activeMentorKey = key;
+            document.querySelectorAll('.mentor-card').forEach(card => {
+                card.className = "mentor-card border border-oat-200 bg-white p-4 rounded-2xl cursor-pointer hover:bg-oat-50 transition-all flex items-center space-x-4";
+            });
+            const activeCard = document.getElementById(`mentor-${key}`);
+            if (activeCard) {
+                activeCard.className = "mentor-card active border-2 border-sand-500 bg-sand-50 p-4 rounded-2xl cursor-pointer transition-all flex items-center space-x-4";
+            }
+        }
+
+        async function askMentorAdvice() {
+            const queryVal = document.getElementById('mentor-query').value.trim();
+            if (!queryVal) {
+                showToast("請輸入您想向職場前輩請教的問題！", "error");
+                return;
+            }
+
+            const activeMentor = mentors[appState.activeMentorKey];
+            const responseContainer = document.getElementById('mentor-response-content');
+            const statusTag = document.getElementById('mentor-status-tag');
+
+            statusTag.innerText = `正在為您連線前輩 ${activeMentor.name}...`;
+            statusTag.className = "text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded animate-pulse";
+            responseContainer.innerHTML = `
+                <div class="text-center py-20 space-y-3">
+                    <div class="w-8 h-8 border-4 border-sand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p class="text-xs text-gray-400">前輩正在閱讀您的問題並組織建議中，請稍候...</p>
+                </div>
+            `;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: queryVal }] }],
+                    systemInstruction: {
+                        parts: [{ text: activeMentor.prompt }]
+                    }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (reply) {
+                    statusTag.innerText = "前輩開示完畢";
+                    statusTag.className = "text-[10px] font-bold text-green-700 bg-green-50 border border-green-100 px-2 py-0.5 rounded";
+                    
+                    // Format response with some basic paragraphs
+                    const formatted = reply.split('\n').map(p => {
+                        if (p.trim().startsWith('-') || p.trim().startsWith('*')) {
+                            return `<li class="ml-4 list-disc my-1">${p.replace(/^[-*]\s*/, '')}</li>`;
+                        }
+                        return p.trim() ? `<p class="my-2 leading-relaxed">${p}</p>` : '';
+                    }).join('');
+
+                    responseContainer.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3 bg-sand-50 p-3 rounded-2xl border border-oat-100">
+                                <div class="w-10 h-10 rounded-full bg-sand-500 text-white flex items-center justify-center font-bold text-sm">
+                                    ${activeMentor.name[0]}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-charcoal">${activeMentor.name} (${activeMentor.role})</h4>
+                                    <p class="text-[9px] text-gray-400">前輩已針對您的特質給予解答</p>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-600 bg-white p-2 leading-relaxed">
+                                ${formatted}
+                            </div>
+                        </div>
+                    `;
+                    showToast(`已成功收到前輩 ${activeMentor.name} 的專業回饋！`, "success");
+                }
+
+            } catch (err) {
+                console.error("Mentor Consultation Error:", err);
+                statusTag.innerText = "連線失敗";
+                statusTag.className = "text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded";
+                responseContainer.innerHTML = `
+                    <div class="text-center py-20 text-red-500">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
+                        <p class="text-xs font-bold">前輩太忙碌了，連線超時，請再試一次！</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ----------------------------------------------------
+        // Chatroom Event Handlers & Simulated Chat Back (LocalStorage/Firestore)
+        // ----------------------------------------------------
+        function renderChatMessages(history = appState.chatHistory) {
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '';
+
+            history.forEach(msg => {
+                const isMentor = msg.role === 'mentor';
+                const bubbleBg = isMentor ? 'bg-sand-100 text-charcoal border border-sand-200' : 'bg-charcoal text-white';
+                const containerJustify = isMentor ? 'justify-start' : 'justify-end';
+                const avatar = isMentor ? '艾' : '新';
+                const avatarBg = isMentor ? 'bg-sand-500 text-white' : 'bg-sage-600 text-white';
+
+                const div = document.createElement('div');
+                div.className = `flex items-end space-x-2 ${containerJustify} w-full`;
+                
+                const timeString = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                if (isMentor) {
+                    div.innerHTML = `
+                        <div class="w-7 h-7 rounded-full ${avatarBg} font-bold text-[10px] flex items-center justify-center shrink-0">${msg.sender[0]}</div>
+                        <div class="max-w-[70%] space-y-1">
+                            <span class="text-[9px] text-gray-400 block">${msg.sender} <span class="bg-sand-200 text-sand-700 font-extrabold px-1.5 py-0.2 rounded-full text-[8px] scale-90 inline-block">職場前輩</span></span>
+                            <div class="p-3 rounded-2xl rounded-bl-none text-xs ${bubbleBg} leading-relaxed">${msg.content}</div>
+                            <span class="text-[8px] text-gray-300 block text-left">${timeString}</span>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="max-w-[70%] space-y-1 text-right">
+                            <span class="text-[9px] text-gray-400 block">${msg.sender}</span>
+                            <div class="p-3 rounded-2xl rounded-br-none text-xs ${bubbleBg} leading-relaxed text-left">${msg.content}</div>
+                            <span class="text-[8px] text-gray-300 block text-right">${timeString}</span>
+                        </div>
+                        <div class="w-7 h-7 rounded-full ${avatarBg} font-bold text-[10px] flex items-center justify-center shrink-0">${avatar}</div>
+                    `;
+                }
+                container.appendChild(div);
+            });
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            const name = document.getElementById('v2-resume-name').value || "新鮮人同學";
+            const newMsg = {
+                sender: name,
+                content: content,
+                timestamp: Date.now(),
+                role: 'user'
+            };
+
+            input.value = '';
+
+            if (isFirebaseActive && db) {
+                try {
+                    const { collection, addDoc } = window.firebaseModules;
+                    const chatCol = collection(db, 'artifacts', appId, 'public', 'data', 'chatroom');
+                    await addDoc(chatCol, newMsg);
+                } catch (err) {
+                    console.error("Firestore message write failed:", err);
+                }
+            } else {
+                // LocalStorage backup fallback
+                appState.chatHistory.push(newMsg);
+                localStorage.setItem('freshstart_chat_history_v3', JSON.stringify(appState.chatHistory));
+                renderChatMessages();
+
+                // Trigger AI Senior in-room response after 1.5s delay to simulate other people replying
+                setTimeout(() => {
+                    simulateSeniorInChatroom(content);
+                }, 1500);
+            }
+        }
+
+        async function simulateSeniorInChatroom(userText) {
+            const seniorsPool = [
+                { name: "艾莉絲 (Alice)", prompt: "你是一位在線上聊天室與新鮮人聊天的UI/UX導師艾莉絲。請用一到兩句親切、溫柔且鼓勵的話，回覆學生的這句話：「USER_TEXT」。請展現極大的熱忱。" },
+                { name: "葉大頭 (Tony)", prompt: "你是一位在線上聊天室的技術Lead導師葉大頭。請用一到兩句精練、帶有工程思維或幽默工程黑話的話，回覆學生的這句話：「USER_TEXT」。不空談。" },
+                { name: "查理 (Charlie)", prompt: "你是一位在線上聊天室的行銷經理導師查理。請用一到兩句非常有朝氣、帶有市場增長思維或熱門爆紅話題的話，回覆學生的這句話：「USER_TEXT」。" }
+            ];
+
+            const chosenSenior = seniorsPool[Math.floor(Math.random() * seniorsPool.length)];
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userText }] }],
+                    systemInstruction: {
+                        parts: [{ text: chosenSenior.prompt.replace("USER_TEXT", userText) }]
+                    }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (reply) {
+                    const mentorMsg = {
+                        sender: chosenSenior.name,
+                        content: reply.trim(),
+                        timestamp: Date.now(),
+                        role: 'mentor'
+                    };
+                    appState.chatHistory.push(mentorMsg);
+                    localStorage.setItem('freshstart_chat_history_v3', JSON.stringify(appState.chatHistory));
+                    renderChatMessages();
+                }
+
+            } catch (err) {
+                // fallback mock if API throttled
+                const mockReplies = [
+                    "這真的是求職很常見的問題！不要焦慮，履歷好壞取決於能否凸顯你解決問題的『過程』。",
+                    "哈哈，這個我也經歷過！建議先把核心工具熟悉好，有小專題再去投，成功率大增。",
+                    "新鮮人起步最重要是『積極主動』，不怕踩雷，我們都是這樣走過來的！加油！"
+                ];
+                const mockMsg = {
+                    sender: chosenSenior.name,
+                    content: mockReplies[Math.floor(Math.random() * mockReplies.length)],
+                    timestamp: Date.now(),
+                    role: 'mentor'
+                };
+                appState.chatHistory.push(mockMsg);
+                renderChatMessages();
+            }
+        }
+
+        // ----------------------------------------------------
+        // Jobs Tab Switcher Helper
+        // ----------------------------------------------------
+        function setJobMode(mode) {
+            appState.jobMode = mode;
+            const btnFeat = document.getElementById('btn-mode-featured');
+            const btnCrawl = document.getElementById('btn-mode-crawler');
+            const crawlStatus = document.getElementById('crawler-live-status');
+            const searchBtn = document.getElementById('btn-crawl-search');
+            const jobSelectors = document.getElementById('job-selectors');
+
+            if (mode === 'featured') {
+                btnFeat.className = "px-4 py-2 rounded-xl text-xs font-bold bg-sand-500 text-white transition-all shadow-sm";
+                btnCrawl.className = "px-4 py-2 rounded-xl text-xs font-bold bg-oat-50 text-gray-500 border border-oat-200 hover:bg-oat-100 transition-all";
+                crawlStatus.classList.add('hidden');
+                searchBtn.classList.add('hidden');
+                jobSelectors.classList.remove('hidden');
+                renderJobs(presetJobs);
+            } else {
+                btnCrawl.className = "px-4 py-2 rounded-xl text-xs font-bold bg-orange-500 text-white transition-all shadow-sm";
+                btnFeat.className = "px-4 py-2 rounded-xl text-xs font-bold bg-oat-50 text-gray-500 border border-oat-200 hover:bg-oat-100 transition-all";
+                crawlStatus.classList.remove('hidden');
+                searchBtn.classList.remove('hidden');
+                jobSelectors.classList.add('hidden');
+                renderJobs([]); // clear and wait for crawl action
+            }
+        }
+
+        // ----------------------------------------------------
+        // Routing & View Controller
+        // ----------------------------------------------------
+        function navigateTo(pageId) {
+            const bar = document.getElementById('top-loading-bar');
+            bar.style.width = '30%';
+            
+            setTimeout(() => {
+                bar.style.width = '70%';
+                
+                document.querySelectorAll('.page-view').forEach(view => {
+                    view.classList.add('hidden');
+                });
+
+                const targetView = document.getElementById(`view-${pageId}`);
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                }
+
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.className = "nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-charcoal hover:bg-oat-50";
+                });
+                
+                const activeNav = document.getElementById(`nav-${pageId}`);
+                if (activeNav) {
+                    if (pageId === 'tracker') {
+                        activeNav.className = "relative bg-sand-500 hover:bg-sand-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm flex items-center space-x-1.5";
+                    } else {
+                        activeNav.className = "nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all text-sand-700 bg-sand-50";
+                    }
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                bar.style.width = '100%';
+                
+                appState.currentPage = pageId;
+
+                // Tab specific initialization
+                if (pageId === 'chat') {
+                    renderChatMessages();
+                }
+
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                }, 200);
+
+            }, 150);
+        }
+
+        // ----------------------------------------------------
+        // MBTI Quiz Questions & Handlers (Thinker / Creator / Organizer / Executor)
+        // ----------------------------------------------------
+        const quizV2Questions = [
+            {
+                question: "1. 畢業前夕規劃專題時，在小組任務分配中，您最直覺想要承擔什麼樣的角色？",
+                options: [
+                    { text: "專注於收集數據、研究、驗證邏輯，確保報告有理有據且結構嚴謹。", score: { thinker: 3, creator: 0, organizer: 0, executor: 1 } },
+                    { text: "負責最關鍵、最具原創性的核心創意，撰寫引人入勝的文案或設計美觀的呈現。", score: { thinker: 0, creator: 3, organizer: 1, executor: 0 } },
+                    { text: "主動建立進度表，協調成員衝突，凝聚共識並負責上台簡報爭取認同。", score: { thinker: 0, creator: 1, organizer: 3, executor: 0 } },
+                    { text: "默默把最繁瑣、最需要細心的實際執行工作完成，確保每個計畫細節都完美到位。", score: { thinker: 1, creator: 0, organizer: 0, executor: 3 } }
+                ]
+            },
+            {
+                question: "2. 當您遇到一個棘手、從未經歷過且沒有標準答案的陌生難題時，您的第一直覺是？",
+                options: [
+                    { text: "冷靜下來，將大問題拆解為多個小步驟，尋找邏輯脈絡，以數據和理論逐步推導分析。", score: { thinker: 3, creator: 0, organizer: 0, executor: 1 } },
+                    { text: "尋找突破點，不喜歡墨守成規，思考有沒有跳脫框架的全新創意提案。", score: { thinker: 0, creator: 3, organizer: 1, executor: 0 } },
+                    { text: "去找懂的人詢問，透過與大家討論、腦力激盪，匯集眾人的智慧與資源來合力解決。", score: { thinker: 0, creator: 1, organizer: 3, executor: 0 } },
+                    { text: "先動手做做看，透過實際操作和反覆測試來找出規律，在做中學，迅速將其實踐落地。", score: { thinker: 1, creator: 0, organizer: 0, executor: 3 } }
+                ]
+            },
+            {
+                question: "3. 假日時，您最容易在哪些資訊、書籍、影片或網頁中流連忘返，感到收穫滿滿？",
+                options: [
+                    { text: "科學技術最新突破、深度財經產業分析、社會議題思辨或複雜的歷史謎團研究。", score: { thinker: 3, creator: 0, organizer: 1, executor: 0 } },
+                    { text: "世界級設計與藝術作品、極具張力的文字創作、最新影音特效或前衛的創意美學風格。", score: { thinker: 0, creator: 3, organizer: 0, executor: 1 } },
+                    { text: "社群爆紅話題與心理學分析、人物傳記與訪談、團隊領導力與人際關係溝通心法。", score: { thinker: 1, creator: 0, organizer: 3, executor: 0 } },
+                    { text: "生活實用技巧、手作DIY、專案整理工具、或某個能優化生活效率與秩序的指南手冊。", score: { thinker: 0, creator: 1, organizer: 0, executor: 3 } }
+                ]
+            },
+            {
+                question: "4. 在畢業發表會或大型成果展示上，你最希望呈現出來的「個人成就亮點」是什麼？",
+                options: [
+                    { text: "展現嚴謹的調查數據、精準的邏輯架構，並成功解答了現場所有的複雜質疑。", score: { thinker: 3, creator: 0, organizer: 0, executor: 1 } },
+                    { text: "展示極具個人風格的美學視覺，或是令人驚艷、體驗流暢的原創作品與獨家創意。", score: { thinker: 0, creator: 3, organizer: 1, executor: 0 } },
+                    { text: "展現團隊在我的組織與溝通下，跨領域完美合作、各司其職，發揮出1+1>2的團體影響力。", score: { thinker: 0, creator: 1, organizer: 3, executor: 0 } },
+                    { text: "展示一項精準無誤、按部就班完美完成的高品質計畫成品，展現高度穩定與可靠的成果。", score: { thinker: 1, creator: 0, organizer: 0, executor: 3 } }
+                ]
+            },
+            {
+                question: "5. 如果今天有一筆為新鮮人準備的免費學習資源額度，你最渴望報名哪一種類型的課程？",
+                options: [
+                    { text: "數據分析與決策思維、程式演算法與邏輯訓練、系統架構與科學原理探究課。", score: { thinker: 3, creator: 0, organizer: 1, executor: 0 } },
+                    { text: "視覺設計實戰美學、創意劇本與文字寫作、全方位影音剪輯與視覺包裝藝術課。", score: { thinker: 0, creator: 3, organizer: 0, executor: 1 } },
+                    { text: "職場心理學與談判溝通、專案管理與敏捷領導力、卓越人際關係營造精英班。", score: { thinker: 1, creator: 0, organizer: 3, executor: 0 } },
+                    { text: "高效率時間管理術、辦公室效率工具整合、專案排程實踐與高品質標準作業程序(SOP)建立。", score: { thinker: 0, creator: 1, organizer: 0, executor: 3 } }
+                ]
+            }
+        ];
+
+        function renderQuizV2() {
+            const index = appState.quizCurrentIndex;
+            if (index >= quizV2Questions.length) {
+                calculateAndShowQuizResult();
+                return;
+            }
+
+            const currentPercent = Math.round((index / quizV2Questions.length) * 100);
+            document.getElementById('quiz-progress-text').innerText = `問題 ${index + 1} / ${quizV2Questions.length}`;
+            document.getElementById('quiz-progress-percent').innerText = `${currentPercent}% 已完成`;
+            document.getElementById('quiz-progress-bar').style.width = `${currentPercent || 5}%`;
+
+            const activeQuestion = quizV2Questions[index];
+            document.getElementById('quiz-question-title').innerText = activeQuestion.question;
+
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = '';
+
+            activeQuestion.options.forEach((opt, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border border-oat-200 hover:border-sand-500 hover:bg-sand-50/50 text-xs text-charcoal font-medium transition-all flex items-start space-x-3";
+                btn.onclick = () => handleQuizOptionClick(opt.score);
+                btn.innerHTML = `
+                    <span class="w-5 h-5 rounded-full bg-oat-100 flex items-center justify-center text-[10px] text-gray-500 font-bold shrink-0 mt-0.5">${String.fromCharCode(65 + oIdx)}</span>
+                    <span>${opt.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function handleQuizOptionClick(score) {
+            appState.quizAnswers.thinker += score.thinker || 0;
+            appState.quizAnswers.creator += score.creator || 0;
+            appState.quizAnswers.organizer += score.organizer || 0;
+            appState.quizAnswers.executor += score.executor || 0;
+
+            appState.quizCurrentIndex++;
+            renderQuizV2();
+        }
+
+        function calculateAndShowQuizResult() {
+            document.getElementById('quiz-active-zone').classList.add('hidden');
+            document.getElementById('quiz-result-zone').classList.remove('hidden');
+
+            const scores = appState.quizAnswers;
+            let bestTypeKey = 'thinker';
+            let maxVal = scores.thinker;
+
+            if (scores.creator > maxVal) { bestTypeKey = 'creator'; maxVal = scores.creator; }
+            if (scores.organizer > maxVal) { bestTypeKey = 'organizer'; maxVal = scores.organizer; }
+            if (scores.executor > maxVal) { bestTypeKey = 'executor'; maxVal = scores.executor; }
+
+            let titleText = '';
+            let descText = '';
+
+            if (bestTypeKey === 'thinker') {
+                titleText = "邏輯思維與深度分析型 (The Thinker)";
+                descText = "您具備敏銳的邏輯推理能力，面對繁雜的數據與難題，能迅速找出事物本質與解決方案。不論是理、工、商科，凡是需要高智慧、縝密理性判斷的崗位都是您的主場。<br><br>🎯 適合您的推薦崗位：<strong class='text-sand-700 font-extrabold underline decoration-sand-300 decoration-2 text-[13px]'>數據分析師、後端與軟體工程師、財務精算師、智權/法務顧問、學術研究員</strong>。";
+            } else if (bestTypeKey === 'creator') {
+                titleText = "自由靈感與美感創造型 (The Creator)";
+                descText = "您天生擁有獨特的美學敏銳度與跳脫框架的想像力。比起一成不變的規則，您更熱愛用視覺、文字或全新點子向世界傳達價值。<br><br>🎯 適合您的推薦崗位：<strong class='text-sand-700 font-extrabold underline decoration-sand-300 decoration-2 text-[13px]'>UI/UX 介面設計師、平面設計師、創意企劃、文案腳本撰寫、自媒體與影音創作者</strong>。";
+            } else if (bestTypeKey === 'organizer') {
+                titleText = "人脈凝聚與協調整合型 (The Organizer)";
+                descText = "您擁有極強的同理心與溝通共情能力，是團隊中不可或缺的粘合劑。擅長引導共識、管理人際、推廣觀點。<br><br>🎯 適合您的推薦崗位：<strong class='text-sand-700 font-extrabold underline decoration-sand-300 decoration-2 text-[13px]'>產品與專案經理 (PM)、社群行銷企劃、公關專員 (PR)、商務開發 (BD)、人力資源夥伴 (HR)</strong>。";
+            } else {
+                titleText = "卓越穩健的細節執行型 (The Executor)";
+                descText = "您無比務實且重視效率與細節。在您看來，再偉大的創意都需要紮實的執行。您追求秩序、穩定與精確，是團隊中最受人信賴的靠山。<br><br>🎯 適合您的推薦崗位：<strong class='text-sand-700 font-extrabold underline decoration-sand-300 decoration-2 text-[13px]'>專案營運專員、行政協調與管理經理、流程控管師、供應鏈排程專員、細節審核分析師</strong>。";
+            }
+
+            document.getElementById('quiz-best-type').innerHTML = titleText;
+            document.getElementById('quiz-best-type').setAttribute('data-best-key', bestTypeKey);
+            document.getElementById('quiz-type-desc').innerHTML = descText;
+
+            showToast("恭喜完成天賦定位測驗！", "success");
+        }
+
+        function resetQuiz() {
+            appState.quizAnswers = { thinker: 0, creator: 0, organizer: 0, executor: 0 };
+            appState.quizCurrentIndex = 0;
+            document.getElementById('quiz-active-zone').classList.remove('hidden');
+            document.getElementById('quiz-result-zone').classList.add('hidden');
+            renderQuizV2();
+        }
+
+        function applyQuizFilterToJobs() {
+            const bestKey = document.getElementById('quiz-best-type').getAttribute('data-best-key');
+            let filterVal = 'all';
+            if (bestKey === 'thinker') filterVal = 'tech';
+            if (bestKey === 'creator') filterVal = 'design';
+            if (bestKey === 'organizer') filterVal = 'marketing';
+            
+            document.getElementById('job-type-select').value = filterVal;
+            setJobMode('featured');
+            navigateTo('jobs');
+            filterJobs();
+
+            const pill = document.getElementById('filter-active-pill');
+            pill.classList.remove('hidden');
+            document.getElementById('filter-active-pill-text').innerText = `✨ 系統已依據您「${bestKey.toUpperCase()}」天賦特質，篩選出最契合之精選職缺！`;
+        }
+
+        // ----------------------------------------------------
+        // Jobs Render & Detailed Modals
+        // ----------------------------------------------------
+        function renderJobs(filteredList = presetJobs) {
+            const grid = document.getElementById('jobs-cards-grid');
+            const emptyState = document.getElementById('jobs-empty-state');
+            grid.innerHTML = '';
+
+            if (filteredList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            filteredList.forEach(job => {
+                let badgeStyle = "bg-sand-100 text-sand-700";
+                let typeText = "設計規劃";
+                if (job.type === 'tech') { badgeStyle = "bg-sage-100 text-sage-700"; typeText = "技術支援"; }
+                else if (job.type === 'marketing') { badgeStyle = "bg-orange-50 text-orange-600"; typeText = "品牌推廣"; }
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-oat-200 rounded-2xl p-5 hover:border-sand-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold ${badgeStyle} px-2 py-0.5 rounded">${typeText}</span>
+                            <span class="text-[10px] text-gray-400 font-medium"><i class="fa-solid fa-location-dot mr-1"></i>${job.region}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-charcoal leading-snug line-clamp-1">${job.title}</h4>
+                            <p class="text-[11px] text-gray-400 mt-0.5">${job.company}</p>
+                        </div>
+                        <p class="text-[11px] text-gray-500 line-clamp-2 leading-relaxed">${job.desc}</p>
+                    </div>
+                    <div class="pt-4 border-t border-oat-50 mt-4 flex items-center justify-between">
+                        <span class="text-[10px] text-sand-600 font-bold">${job.salary}</span>
+                        <button onclick="openJobDetail('${job.id}')" class="text-[10px] text-charcoal hover:text-white hover:bg-charcoal px-3 py-1.5 rounded-lg border border-charcoal/25 font-bold transition-all">
+                            查看詳情
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterJobs() {
+            const query = document.getElementById('job-search-input').value.toLowerCase();
+            const region = document.getElementById('job-region-select').value;
+            const type = document.getElementById('job-type-select').value;
+
+            const results = presetJobs.filter(job => {
+                const matchQuery = job.title.toLowerCase().includes(query) || job.company.toLowerCase().includes(query) || job.desc.toLowerCase().includes(query);
+                const matchRegion = region === 'all' || job.region === region;
+                const matchType = type === 'all' || job.type === type;
+                return matchQuery && matchRegion && matchType;
+            });
+
+            renderJobs(results);
+        }
+
+        function clearFilters() {
+            document.getElementById('job-search-input').value = '';
+            document.getElementById('job-region-select').value = 'all';
+            document.getElementById('job-type-select').value = 'all';
+            document.getElementById('filter-active-pill').classList.add('hidden');
+            filterJobs();
+            showToast("條件已重設", "success");
+        }
+
+        function openJobDetail(jobId) {
+            // Find in global list or preset
+            let job = presetJobs.find(j => j.id === jobId);
+            if (!job) {
+                job = jobList.find(j => j.id === jobId); // crawled jobs saved here
+            }
+            if (!job) return;
+
+            selectedJobForModal = job;
+
+            document.getElementById('modal-job-title').innerText = job.title;
+            document.getElementById('modal-job-comp').innerText = job.company;
+            document.getElementById('modal-job-info').innerText = `📍 地區：${job.region} | 💰 薪資：${job.salary}`;
+            document.getElementById('modal-job-desc').innerText = job.desc;
+
+            const reqBlock = document.getElementById('modal-requirements-block');
+            const reqsContainer = document.getElementById('modal-job-reqs');
+            
+            if (job.reqs && job.reqs.length > 0) {
+                reqBlock.classList.remove('hidden');
+                reqsContainer.innerHTML = '';
+                job.reqs.forEach(r => {
+                    const li = document.createElement('li');
+                    li.innerText = r;
+                    reqsContainer.appendChild(li);
+                });
+            } else {
+                reqBlock.classList.add('hidden');
+            }
+
+            // Platform tag logic
+            const sourceTag = document.getElementById('modal-job-source-tag');
+            const crawlInfo = document.getElementById('modal-job-crawler-info');
+            if (job.platform) {
+                sourceTag.classList.remove('hidden');
+                crawlInfo.innerText = `此職缺即時爬自【${job.platform}】。`;
+            } else {
+                sourceTag.classList.add('hidden');
+            }
+
+            const isApplied = appState.appliedJobs.some(a => a.id === jobId);
+            const applyBtn = document.getElementById('modal-apply-btn');
+            if (isApplied) {
+                applyBtn.disabled = true;
+                applyBtn.className = "bg-gray-200 text-gray-400 font-bold text-xs px-5 py-2 rounded-xl cursor-not-allowed";
+                applyBtn.innerText = "已成功投遞此職缺";
+            } else {
+                applyBtn.disabled = false;
+                applyBtn.className = "bg-sand-500 hover:bg-sand-600 text-white font-bold text-xs px-5 py-2 rounded-xl transition-all shadow-sm";
+                applyBtn.innerText = "一鍵投遞履歷";
+            }
+
+            document.getElementById('job-detail-modal').classList.remove('hidden');
+        }
+
+        function closeJobDetail() {
+            document.getElementById('job-detail-modal').classList.add('hidden');
+            selectedJobForModal = null;
+        }
+
+        function applyJobFromModal() {
+            if (!selectedJobForModal) return;
+            const job = selectedJobForModal;
+            const applyBtn = document.getElementById('modal-apply-btn');
+
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i>正在投遞模擬中...`;
+
+            setTimeout(() => {
+                const dateString = new Date().toISOString().split('T')[0];
+                appState.appliedJobs.push({
+                    id: job.id,
+                    title: job.title,
+                    company: job.company,
+                    date: dateString,
+                    status: '已投遞',
+                    notes: '本機記錄儲存。'
+                });
+
+                localStorage.setItem('freshstart_applied_jobs', JSON.stringify(appState.appliedJobs));
+                updateTrackerUI();
+                showToast(`已成功投遞【${job.title}】！`, "success");
+                closeJobDetail();
+            }, 1000);
+        }
+
+        // ----------------------------------------------------
+        // CV Generator Dynamics
+        // ----------------------------------------------------
+        function renderEduInputs() {
+            const container = document.getElementById('v2-resume-edu-list');
+            container.innerHTML = '';
+
+            appState.resumeEdu.forEach((edu, index) => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-oat-50 border border-oat-200 rounded-xl space-y-2 relative";
+                row.innerHTML = `
+                    <div class="flex justify-between items-center pb-1">
+                        <span class="text-[10px] font-bold text-gray-400">學歷組合 #${index + 1}</span>
+                        ${appState.resumeEdu.length > 1 ? `<button type="button" onclick="removeEduRow(${index})" class="text-[10px] text-red-500 hover:text-red-700 font-bold flex items-center space-x-0.5"><i class="fa-solid fa-trash-can"></i> <span>移除</span></button>` : ''}
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">就讀學校</label>
+                            <input type="text" value="${edu.school}" oninput="updateEduValue(${index}, 'school', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">學位科系</label>
+                            <input type="text" value="${edu.major}" oninput="updateEduValue(${index}, 'major', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">主攻/成就</label>
+                            <input type="text" value="${edu.achieve}" oninput="updateEduValue(${index}, 'achieve', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">就學區間</label>
+                            <input type="text" value="${edu.year}" oninput="updateEduValue(${index}, 'year', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+            updateEduPreview();
+        }
+
+        function addNewEduRow() {
+            appState.resumeEdu.push({ school: '', major: '', achieve: '', year: '' });
+            renderEduInputs();
+            showToast("已增加學歷欄位", "success");
+        }
+
+        function removeEduRow(index) {
+            appState.resumeEdu.splice(index, 1);
+            renderEduInputs();
+        }
+
+        function updateEduValue(index, field, val) {
+            appState.resumeEdu[index][field] = val;
+            updateEduPreview();
+        }
+
+        function updateEduPreview() {
+            const container = document.getElementById('prev-v2-edu-container');
+            container.innerHTML = '';
+            appState.resumeEdu.forEach(edu => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-start text-xs border-b border-dashed border-gray-100 pb-2 last:border-0 last:pb-0";
+                item.innerHTML = `
+                    <div class="flex-grow pr-2">
+                        <p class="font-bold text-gray-800">${edu.school || '就讀學校'} • ${edu.major || '學位科系'}</p>
+                        <p class="text-gray-500 mt-0.5">${edu.achieve || '成就成果'}</p>
+                    </div>
+                    <span class="text-gray-400 whitespace-nowrap ml-2">${edu.year || ''}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderExpInputs() {
+            const container = document.getElementById('v2-resume-exp-list');
+            container.innerHTML = '';
+            appState.resumeExp.forEach((exp, index) => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-oat-50 border border-oat-200 rounded-xl space-y-2 relative";
+                row.innerHTML = `
+                    <div class="flex justify-between items-center pb-1">
+                        <span class="text-[10px] font-bold text-gray-400">專案經歷組合 #${index + 1}</span>
+                        ${appState.resumeExp.length > 1 ? `<button type="button" onclick="removeExpRow(${index})" class="text-[10px] text-red-500 hover:text-red-700 font-bold flex items-center space-x-0.5"><i class="fa-solid fa-trash-can"></i> <span>移除</span></button>` : ''}
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">單位與職稱</label>
+                            <input type="text" value="${exp.title}" oninput="updateExpValue(${index}, 'title', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-gray-500">起迄年份</label>
+                            <input type="text" value="${exp.year}" oninput="updateExpValue(${index}, 'year', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500">職責描述</label>
+                        <textarea rows="3" oninput="updateExpValue(${index}, 'desc', this.value)" class="w-full px-2 py-1.5 border border-oat-200 rounded text-xs focus:outline-none focus:border-sand-500 resize-none leading-relaxed">${exp.desc}</textarea>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+            updateExpPreview();
+        }
+
+        function addNewExpRow() {
+            appState.resumeExp.push({ title: '', year: '', desc: '' });
+            renderExpInputs();
+            showToast("已增加經歷欄位", "success");
+        }
+
+        function removeExpRow(index) {
+            appState.resumeExp.splice(index, 1);
+            renderExpInputs();
+        }
+
+        function updateExpValue(index, field, val) {
+            appState.resumeExp[index][field] = val;
+            updateExpPreview();
+        }
+
+        function updateExpPreview() {
+            const container = document.getElementById('prev-v2-exp-container');
+            container.innerHTML = '';
+            appState.resumeExp.forEach(exp => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-start text-xs border-b border-dashed border-gray-100 pb-2 last:border-0 last:pb-0";
+                item.innerHTML = `
+                    <div class="flex-grow pr-2">
+                        <p class="font-bold text-gray-800">${exp.title || '專案經歷'}</p>
+                        <p class="text-gray-500 mt-1 leading-relaxed">${exp.desc || '內容描述'}</p>
+                    </div>
+                    <span class="text-gray-400 whitespace-nowrap ml-2">${exp.year || ''}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // ----------------------------------------------------
+        // Job Tracker & Funnel Controls
+        // ----------------------------------------------------
+        function updateTrackerUI() {
+            const list = appState.appliedJobs;
+            const tableBody = document.getElementById('tracker-table-body');
+            const emptyState = document.getElementById('tracker-empty-state');
+            
+            document.getElementById('tracker-count').innerText = list.length;
+            document.getElementById('tracker-count-mob').innerText = list.length;
+
+            if (list.length > 0) {
+                document.getElementById('tracker-count').classList.remove('hidden');
+            } else {
+                document.getElementById('tracker-count').classList.add('hidden');
+            }
+
+            let counts = { applied: 0, interviewing: 0, accepted: 0, rejected: 0 };
+            list.forEach(app => {
+                if (app.status === '已投遞') counts.applied++;
+                if (app.status === '面試中') counts.interviewing++;
+                if (app.status === '錄取') counts.accepted++;
+                if (app.status === '未錄取') counts.rejected++;
+            });
+
+            document.getElementById('funnel-applied').innerText = counts.applied;
+            document.getElementById('funnel-interviewing').innerText = counts.interviewing;
+            document.getElementById('funnel-accepted').innerText = counts.accepted;
+            document.getElementById('funnel-rejected').innerText = counts.rejected;
+
+            tableBody.innerHTML = '';
+            
+            if (list.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            list.forEach((app, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-oat-50/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-charcoal">${app.title}</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">${app.company}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${app.date}</td>
+                    <td class="px-6 py-4">
+                        <select onchange="updateTrackerStatus(${index}, this.value)" class="bg-[#FDFBF7] border border-oat-200 rounded px-2 py-1 focus:outline-none focus:border-sand-500 font-bold ${app.status === '錄取' ? 'text-green-600' : app.status === '未錄取' ? 'text-red-500' : 'text-sand-600'}">
+                            <option value="已投遞" ${app.status === '已投遞' ? 'selected' : ''}>已投遞</option>
+                            <option value="面試中" ${app.status === '面試中' ? 'selected' : ''}>面試中</option>
+                            <option value="錄取" ${app.status === '錄取' ? 'selected' : ''}>🎉 錄取</option>
+                            <option value="未錄取" ${app.status === '未錄取' ? 'selected' : ''}>未錄取</option>
+                        </select>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="openMailModal(${index})" class="bg-sand-500 hover:bg-sand-600 text-white font-bold text-[10px] px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 shadow-sm">
+                            <i class="fa-regular fa-envelope"></i>
+                            <span>自救破冰信</span>
+                        </button>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" value="${app.notes || ''}" onchange="updateTrackerNotes(${index}, this.value)" class="w-full bg-transparent hover:bg-white border border-transparent hover:border-oat-200 focus:bg-white focus:border-sand-500 rounded px-2 py-1 outline-none" placeholder="輸入備註（如聯絡人、面試考題...）">
+                    </td>
+                    <td class="px-6 py-4 text-right whitespace-nowrap">
+                        <button onclick="removeTrackerItem(${index})" class="text-red-400 hover:text-red-600 font-bold transition-colors">
+                            <i class="fa-regular fa-trash-can text-sm"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateTrackerStatus(index, newStatus) {
+            appState.appliedJobs[index].status = newStatus;
+            localStorage.setItem('freshstart_applied_jobs', JSON.stringify(appState.appliedJobs));
+            updateTrackerUI();
+            showToast("狀態已更新", "success");
+        }
+
+        function updateTrackerNotes(index, newNotes) {
+            appState.appliedJobs[index].notes = newNotes;
+            localStorage.setItem('freshstart_applied_jobs', JSON.stringify(appState.appliedJobs));
+            showToast("備註已儲存", "success");
+        }
+
+        function removeTrackerItem(index) {
+            appState.appliedJobs.splice(index, 1);
+            localStorage.setItem('freshstart_applied_jobs', JSON.stringify(appState.appliedJobs));
+            updateTrackerUI();
+        }
+
+        function clearAllTrackerData() {
+            if (confirm("您確定要刪除所有求職追蹤歷史嗎？")) {
+                appState.appliedJobs = [];
+                localStorage.removeItem('freshstart_applied_jobs');
+                updateTrackerUI();
+            }
+        }
+
+        function openMailModal(index) {
+            const app = appState.appliedJobs[index];
+            if (!app) return;
+
+            const candidateName = document.getElementById('v2-resume-name').value || "求職者";
+            const candidatePhone = document.getElementById('v2-resume-phone').value || "未提供電話";
+
+            const emailBody = `主旨：應徵【${app.title}】職缺追蹤與詢問 - ${candidateName}
+
+您好，我是 ${candidateName}，於 ${app.date} 透過 FreshStart 平台投遞了貴司的「${app.title}」一職。
+
+非常感謝您抽空閱讀我的求職履歷。
+
+我對貴公司目前的發展方向非常嚮往，並深信我本身的專業特質與核心能力，能為團隊帶來積極的貢獻。
+
+理解貴司目前正值招募的繁重期，若您方便，不知是否能向您請教：目前此職缺的初步篩選進度如何？或是是否有機會能與您安排簡短的面試機會？
+
+再次感謝您的寶貴時間！祝您順心。
+
+候選人：${candidateName}
+聯絡電話：${candidatePhone}`;
+
+            document.getElementById('mail-text-area').value = emailBody;
+            document.getElementById('tracker-mail-modal').classList.remove('hidden');
+        }
+
+        function closeMailModal() {
+            document.getElementById('tracker-mail-modal').classList.add('hidden');
+        }
+
+        function copyMailContent() {
+            const textArea = document.getElementById('mail-text-area');
+            textArea.select();
+            document.execCommand('copy');
+            showToast("破冰詢問信複製成功！", "success");
+            closeMailModal();
+        }
+
+        // ----------------------------------------------------
+        // Accordion Controls
+        // ----------------------------------------------------
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.fa-chevron-down');
+            
+            document.querySelectorAll('.accordion-item').forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.querySelector('.accordion-content').style.maxHeight = '0px';
+                    otherItem.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
+                }
+            });
+
+            if (content.style.maxHeight === '0px' || !content.style.maxHeight) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.maxHeight = '0px';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // ----------------------------------------------------
+        // Global Preload
+        // ----------------------------------------------------
+        window.onload = function() {
+            navigateTo('home');
+            renderQuizV2();
+            renderJobs(presetJobs);
+            updateTrackerUI();
+
+            bindResumeRealtimePreview();
+            renderEduInputs();
+            renderExpInputs();
+
+            // Trigger Firebase
+            initFirebaseChat();
+
+            // Setup default fields
+            for (let key in baseInputs) {
+                document.getElementById(baseInputs[key]).dispatchEvent(new Event('input'));
+            }
+        }
+    </script>
+</body>
+</html>
